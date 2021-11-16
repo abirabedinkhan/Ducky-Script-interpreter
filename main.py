@@ -2,6 +2,8 @@ import time
 import pyautogui
 import keyboard
 import sys
+import os
+import requests
 
 try:
 	duckyScriptPath = sys.argv[1]
@@ -25,7 +27,7 @@ duckyCommands = [
 " Q", " R", " S", " T", " U", " V", " W", " X", " Y", " Z"
 ]
 
-pyautoguiCommands = [
+keyboardCommands = [
 "win", "win", "win", "win", "shift", "alt", "ctrl", "ctrl", "down", "down",
 "left", "left", "right", "right", "up", "up", "pause", "pause", "capslock", "delete", "end",
 "esc", "escape", "home", "insert", "numlock", "pageup", "pagedown", "printscreen", "scrolllock", "space",
@@ -44,10 +46,18 @@ def lex(line, prev):
 		time.sleep(float(line[6:]) / 1000)
 	
 	elif line[0:4] == "PATH":
-		duckyScriptPath = line[5:]
-		f = open(duckyScriptPath,"r",encoding='utf-8')
-		duckyScript = f.readlines()
-		duckyScript = [x.strip() for x in duckyScript] 
+		if line[5:].startswith('https://'):
+			try:
+				webScipts = requests.get(line[5:]).text
+			except:
+				webScipts = 'REM'
+				print('Please check your internet connection!')
+			duckyScript = webScipts.split('\n')
+		else:
+			duckyScriptPath = line[5:]
+			f = open(duckyScriptPath,"r",encoding='utf-8')
+			duckyScript = f.readlines()
+			duckyScript = [x.strip() for x in duckyScript] 
 
 		prev = ''
 
@@ -55,6 +65,9 @@ def lex(line, prev):
 			lex(line, prev)
 			previous = line
 			prev = previous
+
+	elif line[0:2] == 'OS':
+		os.system(line[3:])
 
 	elif line[0:6] == "STRING" :
 		pyautogui.typewrite(line[7:], interval=0.02)
@@ -64,15 +77,15 @@ def lex(line, prev):
 			lex(prev, prev)
 
 	elif line[0:3] == "REM":
-		line.replace("REM","#")
+		line.replace("REM", "#")
 		
 	elif line == '' or line == None:
 		line = 'REM'
 
 	else:
-		for j in range(len(pyautoguiCommands)):
+		for j in range(len(keyboardCommands)):
 			if line.find(duckyCommands[j]) != -1:
-				data.append(pyautoguiCommands[j])
+				data.append(keyboardCommands[j])
 		keyboard.press_and_release('+'.join(data))
 		data = []
 
