@@ -29,4 +29,4 @@ Here is some demo payloads files: https://github.com/abirabedinkhan/usbrubberduc
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/abirabedinkhan/Ducky-Script-Compiler/blob/main/LICENSE)
